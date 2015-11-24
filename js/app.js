@@ -2,8 +2,31 @@ import React from 'react'
 import { render } from 'react-dom'
 import { Router, Route, Link } from 'react-router'
 import Login from './components/Login.js'
+import Logout from './components/Logout.js'
+import auth from './utils/auth.js'
+
 
 const App = React.createClass({
+
+  getInitialState() {
+    return {
+      loggedIn: auth.loggedIn()
+      //loggedIn: false
+    }
+  },
+
+  updateAuth(loggedIn) {
+    this.setState({
+      loggedIn: !!loggedIn
+    })
+  },
+
+  componentWillMount() {
+    console.log("i am here. ")
+    auth.onChange = this.updateAuth
+    auth.login()
+  },
+
   render() {
     return (
       <div>
@@ -11,7 +34,14 @@ const App = React.createClass({
         <ul>
           <li><Link to="/about">About</Link></li>
           <li><Link to="/inbox">Inbox</Link></li>
-          <li><Link to="/login">Login</Link></li>
+         
+           <li>
+            {this.state.loggedIn ? (
+              <Link to="/logout">Log out</Link>
+            ) : (
+              <Link to="/login">Sign in</Link>
+            )}
+          </li>
         </ul>
         {this.props.children}
       </div>
@@ -36,20 +66,27 @@ const Inbox = React.createClass({
   }
 })
 
+
+
+
 const Message = React.createClass({
   render() {
     return <h3>Message {this.props.params.id}</h3>
   }
 })
 
+
+
+
 render((
   <Router>
     <Route path="/" component={App}>
       <Route path="about" component={About} />
-      <Route path="inbox" component={Inbox}>
-        <Route path="messages/:id" component={Message} />
+      <Route path="inbox" component={Inbox} >
+               <Route path="messages/:id" component={Message} />
       </Route>
-      <Route name="login" path="login" component={Login}/>
+      <Route path="login" component={Login} />
+      <Route path="logout" component={Logout} />
     </Route>
   </Router>
 ), document.getElementById('app'))
