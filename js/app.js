@@ -3,6 +3,8 @@ import { render } from 'react-dom'
 import { Router, Route, Link } from 'react-router'
 import Login from './components/Login.js'
 import Logout from './components/Logout.js'
+
+
 import auth from './utils/auth.js'
 
 
@@ -37,11 +39,15 @@ const App = React.createClass({
          
            <li>
             {this.state.loggedIn ? (
-              <Link to="/logout">Log out</Link>
+              <Link to="/logout">Log out</Link> 
             ) : (
-              <Link to="/login">Sign in</Link>
+               <Link to="/login">Sign in</Link> 
+
             )}
           </li>
+
+          <li><Link to="/dashboard">Dashboard</Link> (authenticated)</li>
+           
         </ul>
         {this.props.children}
       </div>
@@ -76,6 +82,24 @@ const Message = React.createClass({
 })
 
 
+const Dashboard = React.createClass({
+  render() {
+    const token = auth.getToken()
+
+    return (
+      <div>
+        <h1>Dashboard</h1>
+        <p>You made it!</p>
+        <p>{token}</p>
+      </div>
+    )
+  }
+})
+
+function requireAuth(nextState, replaceState) {
+  if (!auth.loggedIn())
+    replaceState({ nextPathname: nextState.location.pathname }, '/login')
+}
 
 
 render((
@@ -87,6 +111,7 @@ render((
       </Route>
       <Route path="login" component={Login} />
       <Route path="logout" component={Logout} />
+      <Route path="dashboard" component={Dashboard} onEnter={requireAuth}/>
     </Route>
   </Router>
 ), document.getElementById('app'))
